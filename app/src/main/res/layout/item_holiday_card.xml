@@ -42,6 +42,17 @@
                 android:textColor="@color/black"
                 android:textSize="11sp"
                 tools:text="Государственный" />
+
+            <ImageView
+                android:id="@+id/favoriteIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_baseline_star_border_24"
+                android:tint="#B39DDB" />
         </LinearLayout>
 
         <TextView

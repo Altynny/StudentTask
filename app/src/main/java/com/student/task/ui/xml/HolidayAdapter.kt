@@ -6,10 +6,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import android.graphics.Color
 import com.student.task.databinding.ItemHolidayCardBinding
 import com.student.task.databinding.ItemLoadingMoreBinding
 import com.student.task.presentation.model.CardState
 import com.student.task.presentation.model.HolidayUiModel
+import androidx.core.graphics.toColorInt
+import com.student.task.R
 
 class HolidayAdapter(
     private val onCardClick: (Int) -> Unit,
@@ -78,21 +81,36 @@ class HolidayAdapter(
             binding.cardRoot.setOnClickListener {
                 onCardClick(holiday.id)
             }
+            binding.favoriteIcon.visibility = View.VISIBLE
+
+            val favoriteClickListener = View.OnClickListener { v ->
+                v.animate().scaleX(0.8f).scaleY(0.8f).setDuration(100).withEndAction {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                }.start()
+                onFavoriteClick(holiday.id)
+            }
+            binding.favoriteIcon.setOnClickListener(favoriteClickListener)
 
             when (uiModel.cardState) {
-                CardState.Default -> {
-                    bindDefault()
-                }
-                CardState.Expanded -> {
-                    bindDefault()
-                }
-                CardState.Favorite -> {
-                    bindDefault()
-                }
+                CardState.Default, CardState.Expanded -> bindDefault()
+                CardState.Favorite -> bindFavorite()
             }
         }
 
-        private fun bindDefault() {}
+        private fun bindDefault() {
+            binding.cardRoot.setCardBackgroundColor(Color.WHITE)
+            binding.favoriteIcon.setImageResource(R.drawable.ic_baseline_star_border_24)
+            binding.cardRoot.outlineAmbientShadowColor = Color.BLACK
+            binding.cardRoot.outlineSpotShadowColor = Color.BLACK
+        }
+
+        private fun bindFavorite() {
+            binding.cardRoot.setCardBackgroundColor("#FFF7E0".toColorInt())
+            binding.favoriteIcon.setImageResource(R.drawable.ic_baseline_star_24)
+            val shadowColor = "#FF4500".toColorInt()
+            binding.cardRoot.outlineAmbientShadowColor = shadowColor
+            binding.cardRoot.outlineSpotShadowColor = shadowColor
+        }
 
     }
 
