@@ -88,6 +88,16 @@ class HolidayXmlFragment : Fragment() {
         binding.errorLayout.visibility = View.VISIBLE
 
         binding.errorMessage.text = message
+        binding.retryButton.setOnClickListener { viewModel.retry() }
+
+        binding.errorLayout.alpha = 0f
+        binding.errorLayout.translationY = 24f
+        binding.errorLayout.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(300)
+            .setInterpolator(android.view.animation.DecelerateInterpolator())
+            .start()
     }
 
     private fun showData(state: ScreenState.Data) {

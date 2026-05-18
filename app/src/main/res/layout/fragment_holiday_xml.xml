@@ -55,12 +55,31 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <ImageView
+                android:id="@+id/errorIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="12dp"
+                android:src="@android:drawable/ic_dialog_alert"
+                android:tint="@color/purple_200" />
+
             <TextView
                 android:id="@+id/errorMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="// TODO: Error State"
-                android:textSize="16sp" />
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Ошибка загрузки"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/retryButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Повторить" />
+
         </LinearLayout>
 
     </FrameLayout>
