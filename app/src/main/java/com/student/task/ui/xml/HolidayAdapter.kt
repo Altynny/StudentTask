@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import android.graphics.Color
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import com.student.task.databinding.ItemHolidayCardBinding
 import com.student.task.databinding.ItemLoadingMoreBinding
 import com.student.task.presentation.model.CardState
@@ -81,6 +83,12 @@ class HolidayAdapter(
             binding.cardRoot.setOnClickListener {
                 onCardClick(holiday.id)
             }
+
+            binding.holidayDescription.text = holiday.description
+            binding.holidayDescription.visibility = View.GONE
+            binding.expandIndicator.visibility = View.VISIBLE
+            binding.expandIndicator.rotation = 0f
+
             binding.favoriteIcon.visibility = View.VISIBLE
 
             val favoriteClickListener = View.OnClickListener { v ->
@@ -92,8 +100,24 @@ class HolidayAdapter(
             binding.favoriteIcon.setOnClickListener(favoriteClickListener)
 
             when (uiModel.cardState) {
-                CardState.Default, CardState.Expanded -> bindDefault()
-                CardState.Favorite -> bindFavorite()
+                CardState.Default -> {
+                    bindDefault()
+                    TransitionManager.beginDelayedTransition(binding.cardRoot, AutoTransition())
+                    binding.holidayDescription.visibility = View.GONE
+                    binding.expandIndicator.animate().rotation(0f).setDuration(200).start()
+                }
+                CardState.Expanded -> {
+                    bindDefault()
+                    TransitionManager.beginDelayedTransition(binding.cardRoot, AutoTransition())
+                    binding.holidayDescription.visibility = View.VISIBLE
+                    binding.expandIndicator.animate().rotation(180f).setDuration(200).start()
+                }
+                CardState.Favorite -> {
+                    bindFavorite()
+                    TransitionManager.beginDelayedTransition(binding.cardRoot, AutoTransition())
+                    binding.holidayDescription.visibility = View.GONE
+                    binding.expandIndicator.animate().rotation(0f).setDuration(200).start()
+                }
             }
         }
 
