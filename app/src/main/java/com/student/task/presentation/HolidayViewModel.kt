@@ -23,6 +23,10 @@ class HolidayViewModel @Inject constructor(
     private var currentPage = 0
     private var totalCount = 0
     private val allHolidays = mutableListOf<HolidayUiModel>()
+    private var currentFilter: String? = null
+
+    private val _categories = MutableStateFlow<List<String>>(emptyList())
+    val categories = _categories.asStateFlow()
 
     init {
         loadInitial()
@@ -35,13 +39,28 @@ class HolidayViewModel @Inject constructor(
 
             getHolidaysPageUseCase(page = 0).fold(
                 onSuccess = { holidays ->
+                    val mapped = holidays.map { HolidayUiModel(it) }
                     allHolidays.clear()
-                    allHolidays.addAll(holidays.map { HolidayUiModel(it) })
+                    allHolidays.addAll(mapped)
                     currentPage = 0
+                    updateCategories()
+
+                    val display = if (currentFilter.isNullOrEmpty()) {
+                        allHolidays.toList()
+                    } else {
+                        allHolidays.filter { it.holiday.category.displayName == currentFilter }
+                    }
+
+                    val hasMore = if (currentFilter.isNullOrEmpty()) {
+                        allHolidays.size < totalCount
+                    } else {
+                        mapped.any { it.holiday.category.displayName == currentFilter }
+                    }
+
                     _screenState.value = ScreenState.Data(
-                        holidays = allHolidays.toList(),
+                        holidays = display,
                         isLoadingMore = false,
-                        hasMorePages = allHolidays.size < totalCount,
+                        hasMorePages = hasMore,
                         currentPage = currentPage
                     )
                 },
@@ -64,17 +83,61 @@ class HolidayViewModel @Inject constructor(
             getHolidaysPageUseCase(page = currentPage + 1).fold(
                 onSuccess = { holidays ->
                     currentPage++
-                    allHolidays.addAll(holidays.map { HolidayUiModel(it) })
+
+                    val mapped = holidays.map { HolidayUiModel(it) }
+                    allHolidays.addAll(mapped)
+                    updateCategories()
+
+                    val display = if (currentFilter.isNullOrEmpty()) {
+                        allHolidays.toList()
+                    } else {
+                        allHolidays.filter { it.holiday.category.displayName == currentFilter }
+                    }
+
+                    val toAdd = if (currentFilter.isNullOrEmpty()) mapped else mapped.filter { it.holiday.category.displayName == currentFilter }
+
+                    val hasMore = if (currentFilter.isNullOrEmpty()) {
+                        allHolidays.size < totalCount
+                    } else {
+                        toAdd.isNotEmpty()
+                    }
+
                     _screenState.value = ScreenState.Data(
-                        holidays = allHolidays.toList(),
+                        holidays = display,
                         isLoadingMore = false,
-                        hasMorePages = allHolidays.size < totalCount,
+                        hasMorePages = hasMore,
                         currentPage = currentPage
                     )
                 },
                 onFailure = { error ->
                     _screenState.value = current.copy(isLoadingMore = false)
                 }
+            )
+        }
+    }
+
+    private fun updateCategories() {
+        val cats = allHolidays.map { it.holiday.category.displayName }.distinct().sorted()
+        _categories.value = cats
+    }
+
+    fun filterByCategory(category: String?) {
+        currentFilter = category
+        val current = _screenState.value
+        val filtered = if (category.isNullOrEmpty()) {
+            allHolidays.toList()
+        } else {
+            allHolidays.filter { it.holiday.category.displayName == category }
+        }
+
+        if (current is ScreenState.Data) {
+            _screenState.value = current.copy(holidays = filtered)
+        } else {
+            _screenState.value = ScreenState.Data(
+                holidays = filtered,
+                isLoadingMore = false,
+                hasMorePages = allHolidays.size < totalCount,
+                currentPage = currentPage
             )
         }
     }
@@ -101,7 +164,8 @@ class HolidayViewModel @Inject constructor(
         }
         allHolidays.clear()
         allHolidays.addAll(updatedList)
-        _screenState.value = current.copy(holidays = updatedList)
+        val display = if (currentFilter.isNullOrEmpty()) updatedList else updatedList.filter { it.holiday.category.displayName == currentFilter }
+        _screenState.value = current.copy(holidays = display)
     }
 
     fun toggleFavorite(holidayId: Int) {
@@ -121,6 +185,7 @@ class HolidayViewModel @Inject constructor(
         }
         allHolidays.clear()
         allHolidays.addAll(updatedList)
-        _screenState.value = current.copy(holidays = updatedList)
+        val display = if (currentFilter.isNullOrEmpty()) updatedList else updatedList.filter { it.holiday.category.displayName == currentFilter }
+        _screenState.value = current.copy(holidays = display)
     }
 }

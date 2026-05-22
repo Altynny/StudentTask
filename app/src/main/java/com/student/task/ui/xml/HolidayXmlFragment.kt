@@ -11,11 +11,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.graphics.Color
+import android.widget.Button
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import com.student.task.databinding.FragmentHolidayXmlBinding
 import com.student.task.presentation.HolidayViewModel
 import com.student.task.presentation.ScreenState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import androidx.core.view.isNotEmpty
 
 @AndroidEntryPoint
 class HolidayXmlFragment : Fragment() {
@@ -42,7 +47,78 @@ class HolidayXmlFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupCategoryChips()
         observeState()
+    }
+
+    private fun setupCategoryChips() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.categories.collect { categories ->
+                    populateChips(categories)
+                }
+            }
+        }
+    }
+
+    private fun populateChips(categories: List<String>) {
+        val container = binding.chipsGroup as LinearLayout
+        container.removeAllViews()
+
+        val defaultTextColor = ContextCompat.getColor(requireContext(), com.student.task.R.color.black)
+
+        val marginPx = (8 * resources.displayMetrics.density).toInt()
+        val paddingH = (12 * resources.displayMetrics.density).toInt()
+        val paddingV = (6 * resources.displayMetrics.density).toInt()
+
+        fun highlightSelected(tag: Any?) {
+            for (i in 0 until container.childCount) {
+                val v = container.getChildAt(i) as Button
+                if (v.tag == tag) {
+                    v.setBackgroundResource(com.student.task.R.drawable.chip_bg_selected)
+                    v.setTextColor(Color.WHITE)
+                } else {
+                    v.setBackgroundResource(com.student.task.R.drawable.chip_bg_unselected)
+                    v.setTextColor(defaultTextColor)
+                }
+            }
+        }
+
+        val allButton = Button(requireContext())
+        allButton.text = "Все"
+        allButton.isAllCaps = false
+        allButton.tag = "ALL"
+        allButton.setOnClickListener {
+            viewModel.filterByCategory(null)
+            highlightSelected(it.tag)
+        }
+        allButton.setBackgroundResource(com.student.task.R.drawable.chip_bg_unselected)
+        allButton.setPadding(paddingH, paddingV, paddingH, paddingV)
+        val lpAll = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        lpAll.marginEnd = marginPx
+        allButton.layoutParams = lpAll
+        container.addView(allButton)
+
+        for (cat in categories) {
+            val btn = Button(requireContext())
+            btn.text = cat
+            btn.isAllCaps = false
+            btn.tag = cat
+            btn.setOnClickListener {
+                viewModel.filterByCategory(cat)
+                highlightSelected(it.tag)
+            }
+            btn.setBackgroundResource(com.student.task.R.drawable.chip_bg_unselected)
+            btn.setPadding(paddingH, paddingV, paddingH, paddingV)
+            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            lp.marginEnd = marginPx
+            btn.layoutParams = lp
+            container.addView(btn)
+        }
+
+        if (container.childCount > 0) {
+            highlightSelected("ALL")
+        }
     }
 
     private fun setupRecyclerView() {
