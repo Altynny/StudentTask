@@ -62,7 +62,7 @@ class HolidayXmlFragment : Fragment() {
     }
 
     private fun populateChips(categories: List<String>) {
-        val container = binding.chipsGroup as LinearLayout
+        val container = binding.chipsGroup
         container.removeAllViews()
 
         val defaultTextColor = ContextCompat.getColor(requireContext(), com.student.task.R.color.black)
@@ -99,7 +99,9 @@ class HolidayXmlFragment : Fragment() {
         allButton.layoutParams = lpAll
         container.addView(allButton)
 
-        for (cat in categories) {
+        val displayCategories = categories + "test-empty"
+
+        for (cat in displayCategories) {
             val btn = Button(requireContext())
             btn.text = cat
             btn.isAllCaps = false
@@ -116,7 +118,7 @@ class HolidayXmlFragment : Fragment() {
             container.addView(btn)
         }
 
-        if (container.childCount > 0) {
+        if (container.isNotEmpty()) {
             highlightSelected("ALL")
         }
     }
@@ -179,9 +181,25 @@ class HolidayXmlFragment : Fragment() {
             .start()
     }
 
+    private fun showEmpty() {
+        binding.recyclerView.visibility = View.GONE
+        binding.loadingLayout.visibility = View.GONE
+        binding.errorLayout.visibility = View.GONE
+        binding.emptyLayout.visibility = View.VISIBLE
+        binding.emptyText.text = "Праздники не найдены"
+        binding.swipeRefresh.isRefreshing = false
+    }
+
     private fun showData(state: ScreenState.Data) {
         binding.loadingLayout.visibility = View.GONE
         binding.errorLayout.visibility = View.GONE
+        binding.emptyLayout.visibility = View.GONE
+
+        if (state.holidays.isEmpty()) {
+            showEmpty()
+            return
+        }
+
         binding.recyclerView.visibility = View.VISIBLE
         binding.swipeRefresh.isRefreshing = false
 

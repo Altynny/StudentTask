@@ -89,6 +89,33 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/emptyLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/emptyIcon"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/ic_no_holidays_found_96"
+                android:tint="@color/purple_200"
+                android:contentDescription="" />
+
+            <TextView
+                android:id="@+id/emptyText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Праздники не найдены"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/errorLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
