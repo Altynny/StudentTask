@@ -50,6 +50,8 @@ class HolidayXmlFragment : Fragment() {
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
 
+        binding.swipeRefresh.setOnRefreshListener { viewModel.retry() }
+
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -89,6 +91,7 @@ class HolidayXmlFragment : Fragment() {
 
         binding.errorMessage.text = message
         binding.retryButton.setOnClickListener { viewModel.retry() }
+        binding.swipeRefresh.isRefreshing = false
 
         binding.errorLayout.alpha = 0f
         binding.errorLayout.translationY = 24f
@@ -104,6 +107,7 @@ class HolidayXmlFragment : Fragment() {
         binding.loadingLayout.visibility = View.GONE
         binding.errorLayout.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE
+        binding.swipeRefresh.isRefreshing = false
 
         adapter.submitHolidays(state.holidays, state.isLoadingMore)
     }
