@@ -27,7 +27,7 @@ class MainActivity : FragmentActivity() {
          * true  = Jetpack Compose
          * false = XML + ViewBinding (Fragment)
          */
-        private const val USE_COMPOSE = true
+        private const val USE_COMPOSE = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
